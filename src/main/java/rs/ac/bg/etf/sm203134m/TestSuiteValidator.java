@@ -10,12 +10,12 @@ import rs.ac.bg.etf.sm203134m.utils.FileUtils;
 import java.util.Arrays;
 import java.util.List;
 
-@Mojo(name = "generate-test-suite", defaultPhase = LifecyclePhase.VALIDATE)
+@Mojo(name = "validate-test-suite", defaultPhase = LifecyclePhase.VALIDATE)
 public class TestSuiteValidator extends AbstractMojo {
 
-  private static final String DEFAULT_VALUE = "all";
+  private static final String ALL_FILES = "all";
 
-  @Parameter(defaultValue = DEFAULT_VALUE, name = "files")
+  @Parameter(defaultValue = ALL_FILES, name = "files")
   private String files;
 
   @Parameter(defaultValue = "${project}")
@@ -26,11 +26,13 @@ public class TestSuiteValidator extends AbstractMojo {
   @Override
   public void execute() {
 
-    List<Test> tests = null;
-    if (DEFAULT_VALUE.equalsIgnoreCase(files)) {
+    List<Test> tests;
+    if (ALL_FILES.equalsIgnoreCase(files)) {
+
       tests = fileUtils.getProjectFilesByExtension(project, ".tup").stream()
           .map(it -> new Test(it.toAbsolutePath().toString()))
           .toList();
+
     } else {
 
       var fileNames = Arrays.stream(files.split(",")).toList();
@@ -42,9 +44,6 @@ public class TestSuiteValidator extends AbstractMojo {
     }
 
     var suite = new TestSuite(tests);
-    if (suite.getValidationResult().isCorrect()) {
-      getLog().info("All tests in the test suite are valid!");
-    }
 
     if (!suite.getValidationResult().getWarnings().isEmpty()) {
       getLog().warn("There are some warnings: ");
@@ -54,11 +53,15 @@ public class TestSuiteValidator extends AbstractMojo {
     }
 
     if (!suite.getValidationResult().getErrors().isEmpty()) {
-      getLog().error("There are some warnings: ");
-      suite.getValidationResult().getWarnings().forEach(
+      getLog().error("There are some errors: ");
+      suite.getValidationResult().getErrors().forEach(
           it -> getLog().error(it.getMessage())
       );
+      throw new RuntimeException("Validation failed due to reported errors");
     }
 
+    if (suite.getValidationResult().isCorrect()) {
+      getLog().info("All tests in the test suite are valid!");
+    }
   }
 }

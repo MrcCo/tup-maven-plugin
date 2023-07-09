@@ -10,10 +10,6 @@ import rs.ac.bg.etf.sm203134m.utils.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Stream;
 
 @Mojo(name = "generate-test-suite", defaultPhase = LifecyclePhase.GENERATE_TEST_SOURCES)
 public class TestSuiteSourceCodeGenerator extends AbstractMojo {
@@ -34,11 +30,19 @@ public class TestSuiteSourceCodeGenerator extends AbstractMojo {
             .toList()
     );
 
+    createOutputDirectoryIfMissing();
     testSuit.write(outputDirectory.getAbsolutePath());
     project.addTestCompileSourceRoot(outputDirectory.getAbsolutePath());
 
   }
 
+  private void createOutputDirectoryIfMissing() {
+    try {
+      Files.createDirectories(outputDirectory.toPath());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
 
 }
