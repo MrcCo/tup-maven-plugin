@@ -6,6 +6,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import rs.ac.bg.etf.sm203134m.utils.FileUtils;
+import rs.ac.bg.etf.sm203134m.utils.MavenProjectDependencyChecker;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,11 +27,18 @@ public class TestSuiteValidator extends AbstractMojo {
   @Override
   public void execute() {
 
-    List<Test> tests;
+    var missing = new MavenProjectDependencyChecker(project).checkForMandatoryDependencies();
+    if(!missing.isEmpty()) {
+      getLog().error("Project is missing the following dependencies: ");
+      missing.forEach(it -> getLog().error(it));
+      throw new RuntimeException("Project missing dependencies");
+    }
+
+    List<TestCase> tests;
     if (ALL_FILES.equalsIgnoreCase(files)) {
 
       tests = fileUtils.getProjectFilesByExtension(project, ".tup").stream()
-          .map(it -> new Test(it.toAbsolutePath().toString()))
+          .map(it -> new TestCase(it.toAbsolutePath().toString()))
           .toList();
 
     } else {
@@ -39,7 +47,7 @@ public class TestSuiteValidator extends AbstractMojo {
 
       tests = fileUtils.getProjectFilesByExtension(project, ".tup").stream()
           .filter(it -> fileNames.contains(it.getFileName().toString()))
-          .map(it -> new Test(it.toAbsolutePath().toString()))
+          .map(it -> new TestCase(it.toAbsolutePath().toString()))
           .toList();
     }
 

@@ -26,7 +26,7 @@ public class TestSuiteSourceCodeGenerator extends AbstractMojo {
 
     var testSuit = new TestSuite(
         fileUtils.getProjectFilesByExtension(project, ".tup").stream()
-            .map(it -> new Test(it.toAbsolutePath().toString()))
+            .map(it -> new TestCase(it.toAbsolutePath().toString()))
             .toList()
     );
 
