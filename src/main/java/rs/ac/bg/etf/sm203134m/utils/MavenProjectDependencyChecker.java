@@ -11,12 +11,11 @@ public class MavenProjectDependencyChecker {
     private final MavenProject mavenProject;
 
     private final List<String> requiredArtefacts = List.of(
-        "org.junit.jupiter:junit-jupiter-engine",
-        "org.junit.jupiter:junit-jupiter-params",
-        "org.junit.jupiter:junit-jupiter-api",
+        "org.junit.jupiter:junit-jupiter",
         "com.fasterxml.jackson.core:jackson-databind",
         "com.squareup.okhttp3:okhttp",
         "io.github.bonigarcia:webdrivermanager",
+        "io.github.bonigarcia:selenium-jupiter",
         "org.seleniumhq.selenium:selenium-java"
     );
 
