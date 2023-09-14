@@ -17,6 +17,9 @@ jobs:
       - name: Set tagged version
         run: mvn versions:set -DnewVersion=${{ github.ref_name }}
       - name: Publish package
-        run: mvn --batch-mode deploy
+        run: mvn --batch-mode deploy --file pom.xml --settings settings.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USENAME: ${{github.actor}}
+          PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
